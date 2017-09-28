@@ -2,6 +2,8 @@
 
 # Create xarray.Datasets and netCDF files that contain the growth environment 
 # climate variables for different foram species.
+#
+# This is incomplete and in need of updating as of late August.
 
 import os
 import datetime

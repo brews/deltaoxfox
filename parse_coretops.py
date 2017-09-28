@@ -1,5 +1,7 @@
 # 2017-09-26
 
+# Parse raw coretop data and output a single clean dataset.
+
 import datetime
 import numpy as np
 import pandas as pd
