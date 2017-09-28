@@ -59,7 +59,10 @@ pm.summary(trace0)
 #     pm.diagnostics.gelman_rubin(trace0)[target_stat]))
 
 
-pm.traceplot(trace0[100:]);plt.tight_layout()
+pm.traceplot(trace0[100:], priors=[mu_a.distribution, mu_b.distribution,
+                                   None, None,
+                                   sigma_a.distribution, sigma_b.distribution,
+                                   eps.distribution]);plt.tight_layout();plt.show()
 
 pm.forestplot(trace0)
 
@@ -89,6 +92,30 @@ for i in np.unique(idx_species):
     ax.set_xlim(0, 30)
     ax.set_ylim(-4, 4.5)
     ax.set_title(spp)
+    ax.grid(True)
+plt.tight_layout()
+plt.show()
+
+
+# Plot residuals of the median model for each spp.
+for i in np.unique(idx_species):
+    spp = coretops.species.unique()[i]
+    coretops_sub = coretops.query("species == '{}'".format(spp))
+    ax = plt.subplot(2, 3, i+1)
+    spp_msk = coretops.species.unique() == spp
+    alpha = np.median(trace0['alpha'][:, spp_msk])
+    beta = np.median(trace0['beta'][:, spp_msk])
+    y = alpha + beta * coretops_sub['temp_ann']
+    resids = coretops_sub['d18oc'] - y
+    resids_smoothed = sm.nonparametric.lowess(resids, coretops_sub['temp_ann'], frac=0.75)
+    ax.plot(resids_smoothed[:, 0], resids_smoothed[:, 1], label='LOWESS', linestyle=':', color='black')
+
+    ax.scatter(x=coretops_sub['temp_ann'], y=resids, marker='.', label=spp, 
+               color=list(matplotlib.colors.TABLEAU_COLORS.values())[i])
+    ax.axhline(y=0, color='black')
+    ax.set_title(spp)
+    ax.set_ylabel('Obs. - pred. (d18Oc)')
+    ax.set_xlabel('Annual SST (C)')
     ax.grid(True)
 plt.tight_layout()
 plt.show()
