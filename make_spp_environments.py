@@ -26,7 +26,7 @@ with xr.open_dataset(temp_nc_template.format('00'), decode_times=False) as d:
     blank = xr.full_like(d.t_mn.sel(drop=True, depth=0), np.nan)
 
 
-def make_pachy_s():
+def make_pachydermasin():
     out = blank.copy()
     out.squeeze()
 
@@ -43,7 +43,7 @@ def make_pachy_s():
     return out
 
 
-def make_pachy_d():
+def make_pachyderma():
     out = blank.copy()
     out.squeeze()
 
@@ -85,7 +85,7 @@ def make_sacculifer():
     return make_ruber_w(max_depth=100)
 
 
-def make_ruber_w(max_depth=50):
+def make_ruberwhite(max_depth=50):
     out = blank.copy()
     out.squeeze()
 
@@ -109,11 +109,11 @@ def make_ruber_w(max_depth=50):
 def main():
     """Write netcdfs with spp environment information to directory"""
     os.makedirs(ncenv_path, exist_ok=True)
-    make_ruber_w().to_netcdf(os.path.join(ncenv_path, 'ruber_w.nc'))
+    make_ruberwhite().to_netcdf(os.path.join(ncenv_path, 'ruberwhite.nc'))
     make_sacculifer().to_netcdf(os.path.join(ncenv_path, 'sacculifer.nc'))
     make_bulloides().to_netcdf(os.path.join(ncenv_path, 'bulloides.nc'))
-    make_pachy_d().to_netcdf(os.path.join(ncenv_path, 'pachy_d.nc'))
-    make_pachy_s().to_netcdf(os.path.join(ncenv_path, 'pachy_s.nc'))
+    make_pachyderma().to_netcdf(os.path.join(ncenv_path, 'pachyderma.nc'))
+    make_pachydermasin().to_netcdf(os.path.join(ncenv_path, 'pachydermasin.nc'))
 
 
 if __name__ == '__main__':

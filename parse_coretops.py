@@ -53,23 +53,23 @@ coretops = pd.concat([mgca.loc[:, ('corename', 'latitude', 'longitude', 'species
 
 species_dictionary = {'Bu': 'bulloides',
                       'bu': 'bulloides',
-                      'Rw': 'ruber_w',
-                      'rw': 'ruber_w',
+                      'Rw': 'ruberwhite',
+                      'rw': 'ruberwhite',
                       'Sc': None,  # Not sure what this is.
                       'sc': None,  # Not sure what this is.
-                      'Rp': 'ruber_p',
-                      'rp': 'ruber_p',
-                      'Pl': 'pachy_s',
-                      'pl': 'pachy_s',
-                      'Pr': 'pachy_d',
-                      'pr': 'pachy_d',
+                      'Rp': 'ruberpink',
+                      'rp': 'ruberpink',
+                      'Pl': 'pachydermasin',
+                      'pl': 'pachydermasin',
+                      'Pr': 'pachyderma',
+                      'pr': 'pachyderma',
                       'sacc': 'sacculifer'}
 species_translator = {'species': species_dictionary}
 coretops.replace(to_replace=species_translator, inplace=True)
 
 coretops.dropna(inplace=True)
 
-spp_mask = [spp in ['bulloides', 'pachy_d', 'pachy_s', 'ruber_w', 'sacculifer'] for spp in coretops.species]
+spp_mask = [spp in ['bulloides', 'pachyderma', 'ruberwhite', 'sacculifer'] for spp in coretops.species]
 coretops = coretops.loc[np.array(spp_mask), :]
 
 # TODO(brews): Need to account for number of datapoints to do weighted average.
