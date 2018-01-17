@@ -1,27 +1,41 @@
+import os
 from copy import deepcopy
-from pkgutil import get_data
-from io import BytesIO
 import attr
 import pandas as pd
 
-RESOURCE_STR = 'modelparams/bayesreg_{}.h5'
+
+RESOURCE_STR = 'bayesreg_{}.h5'
 
 
-def get_h5_resource(resource, package='deltaoxfox', **kwargs):
+def get_h5_resource(fl, **kwargs):
     """Read flat HDF5 files as package resources, output for Pandas
     """
-    with BytesIO(get_data(package, resource)) as fl:
-        data = pd.read_hdf(fl, **kwargs)
+    here = os.path.abspath(os.path.dirname(__file__))
+    flpath = os.path.join(here, fl)
+    data = pd.read_hdf(flpath, **kwargs)
     return data
 
 
 @attr.s
 class Draws:
-    """Spatially-aware modelparams draws
+    """Model parameters draws
     """
     alpha = attr.ib()
     beta = attr.ib()
     tau2 = attr.ib()
+
+
+@attr.s
+class CalciteDraws(Draws):
+    """Model parameters draws for Calcite in different spp.
+    """
+    spp_temprange = attr.ib()
+
+
+@attr.s
+class SeawaterDraws(Draws):
+    """Spatially-aware model parameters draws
+    """
     latlon = attr.ib()
 
     def _index_near(self, lat, lon):
@@ -37,14 +51,15 @@ class Draws:
 
 # Preloading these resources so only need to load them once.
 DRAWS = {
-    'd18oc': Draws(alpha=get_h5_resource(RESOURCE_STR.format('d18oc'), key='alpha'),
-                   beta=get_h5_resource(RESOURCE_STR.format('d18oc'), key='beta'),
-                   tau2=get_h5_resource(RESOURCE_STR.format('d18oc'), key='tau2'),
-                   latlon=get_h5_resource(RESOURCE_STR.format('d18oc'), key='latlon')),
-    'd18osw': Draws(alpha=get_h5_resource(RESOURCE_STR.format('d18osw'), key='alpha'),
-                    beta=get_h5_resource(RESOURCE_STR.format('d18osw'), key='beta'),
-                    tau2=get_h5_resource(RESOURCE_STR.format('d18osw'), key='tau2'),
-                    latlon=get_h5_resource(RESOURCE_STR.format('d18osw'), key='latlon')),
+    'd18oc': CalciteDraws(alpha=get_h5_resource(RESOURCE_STR.format('d18oc'), key='alpha'),
+                          beta=get_h5_resource(RESOURCE_STR.format('d18oc'), key='beta'),
+                          tau2=get_h5_resource(RESOURCE_STR.format('d18oc'), key='tau2'),
+                          spp_temprange=get_h5_resource(RESOURCE_STR.format('d18oc'),
+                                                        key='spp_temprange')),
+    'd18osw': SeawaterDraws(alpha=get_h5_resource(RESOURCE_STR.format('d18osw'), key='alpha'),
+                            beta=get_h5_resource(RESOURCE_STR.format('d18osw'), key='beta'),
+                            tau2=get_h5_resource(RESOURCE_STR.format('d18osw'), key='tau2'),
+                            latlon=get_h5_resource(RESOURCE_STR.format('d18osw'), key='latlon')),
 }
 
 
