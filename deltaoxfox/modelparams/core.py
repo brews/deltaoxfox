@@ -1,6 +1,7 @@
 import os
 from copy import deepcopy
 import attr
+import numpy as np
 import pandas as pd
 
 
@@ -41,12 +42,19 @@ class SeawaterDraws(Draws):
     def _index_near(self, lat, lon):
         """Get gridpoint index nearest a lat lon
         """
-        raise NotImplementedError
+        assert -90 <= lat <= 90
+        assert -180 < lon <= 180
+        latgridstep = np.asscalar(np.unique(np.diff(self.latlon['lat'].sort_values().unique())))
+        longridstep = np.asscalar(np.unique(np.diff(self.latlon['lon'].sort_values().unique())))
+        lon_adiff = np.abs(self.latlon['lon'] - lon) <= (longridstep/2)
+        lat_adiff = np.abs(self.latlon['lat'] - lat) <= (latgridstep/2)
+        return np.where(lon_adiff & lat_adiff)
 
     def find_nearest_latlon(self, lat, lon):
-        """Find draws gridpoint nearest a given lat lon
+        """Find draws gridpoints nearest a given lat lon
         """
-        raise NotImplementedError
+        idx = self._index_near(lat, lon)
+        return self.latlon.iloc[idx].copy()
 
 
 # Preloading these resources so only need to load them once.
