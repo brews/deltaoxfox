@@ -29,7 +29,7 @@ setup(
 
     packages=find_packages(exclude=['docs']),
 
-    install_requires=['numpy', 'pandas', 'scipy', 'matplotlib', 'attrs'],
+    install_requires=['numpy', 'pandas', 'pytables', 'scipy', 'matplotlib', 'attrs'],
     tests_require=['pytest'],
     package_data={'deltaoxfox': ['modelparams/*.h5']}
 )
