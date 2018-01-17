@@ -56,6 +56,15 @@ class SeawaterDraws(Draws):
         idx = self._index_near(lat, lon)
         return self.latlon.iloc[idx].copy()
 
+    def find_abt2_near(self, lat, lon):
+        """Find alpha, beta, tau2 at the nearest valid grid to a lat lon point
+        """
+        idx = self._index_near(lat, lon)
+        alpha = self.alpha.iloc[idx].copy()
+        beta = self.beta.iloc[idx].copy()
+        tau2 = self.tau2.iloc[idx].copy()
+        return alpha, beta, tau2
+
 
 # Preloading these resources so only need to load them once.
 DRAWS = {
