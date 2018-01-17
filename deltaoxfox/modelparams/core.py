@@ -60,9 +60,9 @@ class SeawaterDraws(Draws):
         """Find alpha, beta, tau2 at the nearest valid grid to a lat lon point
         """
         idx = self._index_near(lat, lon)
-        alpha = self.alpha.iloc[idx].copy()
-        beta = self.beta.iloc[idx].copy()
-        tau2 = self.tau2.iloc[idx].copy()
+        alpha = self.alpha.iloc[idx].copy().squeeze()
+        beta = self.beta.iloc[idx].copy().squeeze()
+        tau2 = self.tau2.iloc[idx].copy().squeeze()
         return alpha, beta, tau2
 
 
