@@ -27,9 +27,9 @@ setup(
     ],
     keywords='marine paleoclimate d18O',
 
-    packages=find_packages(exclude=['docs']),
+    packages=find_packages(exclude=['docs', 'geostats*']),
 
-    install_requires=['numpy', 'pandas', 'pytables', 'scipy', 'matplotlib', 'attrs'],
+    install_requires=['numpy', 'pandas', 'tables', 'scipy', 'matplotlib', 'attrs'],
     tests_require=['pytest'],
     package_data={'deltaoxfox': ['modelparams/*.h5']}
 )
