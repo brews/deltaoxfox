@@ -11,11 +11,12 @@ def test_predict_seatemp():
     d18oc = np.array([-1.71990007])  # Not sure this value is correct.
     goal = np.array([20])
     d18osw = np.array([-0.28134280382815624])
-    prior_std = 3  # seatemp std for prior
+    prior_mean = 30
+    prior_std = 20  # seatemp std for prior
     # latlon = (-79.49700165, -18.699981690000016)
     spp = 'ruberwhite'
-    victim = predict_seatemp(d18oc=d18oc, prior_std=prior_std, spp=spp,
-                             d18osw=d18osw)
+    victim = predict_seatemp(d18oc=d18oc, prior_mean=prior_mean,
+                             prior_std=prior_std, spp=spp, d18osw=d18osw)
     output = victim.ensemble.mean()
     # Note how loose this test is.
     np.testing.assert_allclose(goal, output, atol=1)

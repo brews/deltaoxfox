@@ -96,7 +96,7 @@ def predict_d18oc(seatemp, spp, d18osw=None, salinity=None, latlon=None):
     return Prediction(ensemble=y)
 
 
-def predict_seatemp(d18oc, spp, prior_std, d18osw=None, salinity=None, latlon=None):
+def predict_seatemp(d18oc, spp, prior_mean, prior_std, d18osw=None, salinity=None, latlon=None):
     """Predict seawater temperature given d18O of calcite and seawater d18O
     """
     d18oc_modelparams = get_draws('d18oc')
@@ -122,6 +122,11 @@ def predict_seatemp(d18oc, spp, prior_std, d18osw=None, salinity=None, latlon=No
         # Unit adjustment.
         d18osw_adj = d18osw - 0.27
 
+    nd = len(d18oc)
+    prior_par = {'mu': np.ones(nd) * prior_mean,
+                 'inv_cov': np.eye(nd) * prior_std ** -2}
+
+
     y = np.empty((len(d18oc), len(d18oc_modelparams.tau2)))
     y[:] = np.nan
 
@@ -137,6 +142,50 @@ def predict_seatemp(d18oc, spp, prior_std, d18osw=None, salinity=None, latlon=No
                                           np.sqrt(tau2_d18osw_now))
             d18osw_adj = d18osw_now - 0.27
 
-        mu = -((alpha_now + d18osw_adj + np.sqrt(tau2_now) - d18oc) / beta_now)
-        y[:, i] = np.random.normal(mu, prior_std)
+        y[:, i] = _target_timeseries_pred(d18osw_now=d18osw_adj,
+                                          alpha_now=alpha_now,
+                                          beta_now=beta_now,
+                                          tau2_now=tau2_now,
+                                          proxy_ts=d18oc,
+                                          prior_pars=prior_par)
     return Prediction(ensemble=y)
+
+
+def _target_timeseries_pred(d18osw_now, alpha_now, beta_now, tau2_now, proxy_ts, prior_pars):
+    """
+
+    Parameters
+    ----------
+    alpha_now : scalar
+    beta_now : scalar
+    tau2_now : scalar
+        Current value of the residual variance.
+    proxy_ts : ndarray
+        Time series of the proxy. Assume no temporal structure for now, as
+        timing is not equal.
+    prior_pars : dict
+        mu : ndarray
+            Prior means for each element of the time series.
+        inv_cov: ndarray
+            Inverse of the prior covariance matrix for the time series.
+
+    Returns
+    -------
+    Sample of target time series vector conditional on the rest.
+    """
+    # TODO(brews): Above docstring is based on original MATLAB. Needs cleanup.
+    n_ts = len(proxy_ts)
+
+    # Inverse posterior covariance matrix
+    inv_post_cov = prior_pars['inv_cov'] + beta_now ** 2 / tau2_now * np.eye(n_ts)
+
+    # Used cholesky to speed things up!
+    post_cov = np.linalg.solve(inv_post_cov, np.eye(n_ts))
+    sqrt_post_cov = np.linalg.cholesky(post_cov).T
+    # Get first factor for the mean
+    mean_first_factor = prior_pars['inv_cov'] @ prior_pars['mu'] + (1/tau2_now) * beta_now * (proxy_ts - alpha_now - d18osw_now)
+    mean_full = post_cov @ mean_first_factor
+
+    timeseries_pred = mean_full + sqrt_post_cov @ np.random.randn(n_ts).T
+
+    return timeseries_pred
