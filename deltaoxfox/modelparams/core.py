@@ -31,6 +31,7 @@ class CalciteDraws(Draws):
     """Model parameters draws for Calcite in different spp.
     """
     spp_temprange = attr.ib()
+    spp_d18oswrange = attr.ib()
 
 
 @attr.s
@@ -72,7 +73,10 @@ DRAWS = {
                           beta=get_h5_resource(RESOURCE_STR.format('d18oc'), key='beta'),
                           tau2=get_h5_resource(RESOURCE_STR.format('d18oc'), key='tau2'),
                           spp_temprange=get_h5_resource(RESOURCE_STR.format('d18oc'),
-                                                        key='spp_temprange')),
+                                                        key='spp_temprange'),
+                          spp_d18oswrange=get_h5_resource(RESOURCE_STR.format('d18oc'),
+                                                        key='spp_d18oswrange')
+                          ),
     'd18osw': SeawaterDraws(alpha=get_h5_resource(RESOURCE_STR.format('d18osw'), key='alpha'),
                             beta=get_h5_resource(RESOURCE_STR.format('d18osw'), key='beta'),
                             tau2=get_h5_resource(RESOURCE_STR.format('d18osw'), key='tau2'),
