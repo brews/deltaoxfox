@@ -1,4 +1,5 @@
 import numpy as np
+from numba import jit
 import attr
 from deltaoxfox.modelparams import get_draws
 
@@ -35,6 +36,7 @@ class Prediction:
         return perc.T
 
 
+@jit
 def predict_d18osw(salinity, latlon):
     """Predict d18O of seawater given seawater salinity
     """
@@ -51,6 +53,7 @@ def predict_d18osw(salinity, latlon):
     return Prediction(ensemble=y)
 
 
+@jit
 def predict_d18oc(seatemp, spp, d18osw=None, salinity=None, latlon=None):
     """Predict d18O of calcite given seawater temperature and seawater d18O
     """
@@ -96,6 +99,7 @@ def predict_d18oc(seatemp, spp, d18osw=None, salinity=None, latlon=None):
     return Prediction(ensemble=y)
 
 
+@jit
 def predict_seatemp(d18oc, spp, prior_mean, prior_std, d18osw=None, salinity=None, latlon=None):
     """Predict seawater temperature given d18O of calcite and seawater d18O
     """
@@ -126,7 +130,6 @@ def predict_seatemp(d18oc, spp, prior_mean, prior_std, d18osw=None, salinity=Non
     prior_par = {'mu': np.ones(nd) * prior_mean,
                  'inv_cov': np.eye(nd) * prior_std ** -2}
 
-
     y = np.empty((len(d18oc), len(d18oc_modelparams.tau2)))
     y[:] = np.nan
 
@@ -151,6 +154,7 @@ def predict_seatemp(d18oc, spp, prior_mean, prior_std, d18osw=None, salinity=Non
     return Prediction(ensemble=y)
 
 
+@jit
 def _target_timeseries_pred(d18osw_now, alpha_now, beta_now, tau2_now, proxy_ts, prior_pars):
     """
 
