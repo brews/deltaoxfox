@@ -117,7 +117,7 @@ def predict_seatemp(d18oc, spp, prior_mean, prior_std, d18osw=None, salinity=Non
         d18osw_alpha, d18osw_beta, d18osw_tau2 = modelparams.find_abt2_near(latlon[0], latlon[1])
         # We're assuming that model parameter draws for d18osw & d18oc model are
         # the same (for speed)... May change this later with more coding.
-        assert d18oc_modelparams.tau2.size == d18osw_tau2.size
+        assert d18oc_tau2.size == d18osw_tau2.size
     else:
         # Unit adjustment.
         d18osw_adj = d18osw - 0.27
