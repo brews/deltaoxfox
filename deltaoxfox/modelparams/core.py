@@ -75,7 +75,7 @@ DRAWS = {
                           spp_temprange=get_h5_resource(RESOURCE_STR.format('d18oc'),
                                                         key='spp_temprange'),
                           spp_d18oswrange=get_h5_resource(RESOURCE_STR.format('d18oc'),
-                                                        key='spp_d18oswrange')
+                                                          key='spp_d18oswrange')
                           ),
     'd18osw': SeawaterDraws(alpha=get_h5_resource(RESOURCE_STR.format('d18osw'), key='alpha'),
                             beta=get_h5_resource(RESOURCE_STR.format('d18osw'), key='beta'),
