@@ -1,4 +1,4 @@
-# 2017-09-26
+# 2018-02-19
 
 # Parse raw coretop data and output a single clean dataset.
 
@@ -31,7 +31,7 @@ def chord_distance(lat1, lon1, lat2, lon2):
     return np.sqrt((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
 
 
-mgca = pd.read_excel(mgca_path, sheetname='all_spp', na_values=-999)
+mgca = pd.read_excel(mgca_path, sheet_name='all_spp', na_values=-999)
 
 margo = pd.read_excel(margo_path, skiprows=2)
 margo = margo.rename(columns={'Unnamed: 15': 'species',
@@ -55,21 +55,28 @@ species_dictionary = {'Bu': 'bulloides',
                       'bu': 'bulloides',
                       'Rw': 'ruberwhite',
                       'rw': 'ruberwhite',
+                      'ruber_w': 'ruberwhite',
                       'Sc': None,  # Not sure what this is.
                       'sc': None,  # Not sure what this is.
                       'Rp': 'ruberpink',
                       'rp': 'ruberpink',
+                      'ruber_p': 'ruberpink',
                       'Pl': 'pachydermasin',
                       'pl': 'pachydermasin',
+                      'pachy_s': 'pachydermasin',
                       'Pr': 'pachyderma',
                       'pr': 'pachyderma',
-                      'sacc': 'sacculifer'}
+                      'sacc': 'sacculifer',
+                      }
+
 species_translator = {'species': species_dictionary}
 coretops.replace(to_replace=species_translator, inplace=True)
 
 coretops.dropna(inplace=True)
 
-spp_mask = [spp in ['bulloides', 'pachyderma', 'ruberwhite', 'sacculifer'] for spp in coretops.species]
+target_spp = ['bulloides', 'pachyderma', 'pachydermasin', 
+              'ruberwhite', 'ruberpink', 'sacculifer']
+spp_mask = [spp in target_spp for spp in coretops.species]
 coretops = coretops.loc[np.array(spp_mask), :]
 
 # TODO(brews): Need to account for number of datapoints to do weighted average.
@@ -93,22 +100,22 @@ for spp, df in coretops.groupby('species'):
 
     environ_nc_path = environ_nc_template.format(spp)
 
-    try:
-        with xr.open_dataset(environ_nc_path, decode_times=False) as ds:
-            stacked = (ds.t_mn.sel(time=6.0, drop=True).stack(latlon=('lat', 'lon'))
-                         .dropna('latlon'))
+    # try:
+    #     with xr.open_dataset(environ_nc_path, decode_times=False) as ds:
+    #         stacked = (ds.t_mn.sel(time=6.0, drop=True).stack(latlon=('lat', 'lon'))
+    #                      .dropna('latlon'))
 
-            for idx, site_df in df.iterrows():
-                corename = site_df['corename']
-                d = chord_distance(stacked.lat.values, stacked.lon.values, 
-                                   site_df.latitude, site_df.longitude)
-                min_idx = d.argmin()
-                close_value = np.asscalar(stacked[min_idx])
-                coretops.loc[coretops.corename == corename, 'temp'] = close_value
+    #         for idx, site_df in df.iterrows():
+    #             corename = site_df['corename']
+    #             d = chord_distance(stacked.lat.values, stacked.lon.values, 
+    #                                site_df.latitude, site_df.longitude)
+    #             min_idx = d.argmin()
+    #             close_value = np.asscalar(stacked[min_idx])
+    #             coretops.loc[coretops.corename == corename, 'temp'] = close_value
 
-    except OSError:
-        print('No file {} - Continuing'.format(environ_nc_path))
-        pass
+    # except OSError:
+    #     print('No file {} - Continuing'.format(environ_nc_path))
+    #     pass
 
 
     for idx, site_df in df.iterrows():
