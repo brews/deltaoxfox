@@ -17,6 +17,53 @@ def get_h5_resource(fl, **kwargs):
     return data
 
 
+def chord_distance(latlon1, latlon2):
+    """Chordal distance between two sequences of (lat, lon) points
+
+    Parameters
+    ----------
+    latlon1 : sequence of tuples
+        (latitude, longitude) for one set of points.
+    latlon2 : sequence of tuples
+        A sequence of (latitude, longitude) for another set of points.
+
+    Returns
+    -------
+    dists : 2d array
+        An mxn array of Earth chordal distances [1]_ (km) between points in
+        latlon1 and latlon2.
+
+    References
+    ----------
+    .. [1] https://en.wikipedia.org/wiki/Chord_(geometry)
+
+    """
+    earth_radius = 6378.137  # in km
+
+    latlon1 = np.atleast_2d(latlon1)
+    latlon2 = np.atleast_2d(latlon2)
+
+    n = latlon1.shape[0]
+    m = latlon2.shape[0]
+
+    paired = np.hstack((np.kron(latlon1, np.ones((m, 1))),
+                        np.kron(np.ones((n, 1)), latlon2)))
+
+    latdif = np.deg2rad(paired[:, 0] - paired[:, 2])
+    londif = np.deg2rad(paired[:, 1] - paired[:, 3])
+
+    a = np.sin(latdif / 2) ** 2
+    b = np.cos(np.deg2rad(paired[:, 0]))
+    c = np.cos(np.deg2rad(paired[:, 2]))
+    d = np.sin(np.abs(londif) / 2) ** 2
+
+    half_angles = np.arcsin(np.sqrt(a + b * c * d))
+
+    dists = 2 * earth_radius * np.sin(half_angles)
+
+    return dists.reshape(m, n)
+
+
 @attr.s
 class Draws:
     """Model parameters draws
@@ -45,11 +92,8 @@ class SeawaterDraws(Draws):
         """
         assert -90 <= lat <= 90
         assert -180 < lon <= 180
-        latgridstep = np.asscalar(np.unique(np.diff(self.latlon['lat'].sort_values().unique())))
-        longridstep = np.asscalar(np.unique(np.diff(self.latlon['lon'].sort_values().unique())))
-        lon_adiff = np.abs(self.latlon['lon'] - lon) <= (longridstep/2)
-        lat_adiff = np.abs(self.latlon['lat'] - lat) <= (latgridstep/2)
-        return np.where(lon_adiff & lat_adiff)
+        d = chord_distance((lat, lon), self.latlon)
+        return np.where((d == np.min(d)).ravel())
 
     def find_nearest_latlon(self, lat, lon):
         """Find draws gridpoints nearest a given lat lon
