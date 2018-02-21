@@ -77,8 +77,8 @@ class Draws:
 class CalciteDraws(Draws):
     """Model parameters draws for Calcite in different spp.
     """
-    spp_temprange = attr.ib()
-    spp_d18oswrange = attr.ib()
+    stats_temp = attr.ib()
+    stats_d18osw = attr.ib()
 
 
 @attr.s
@@ -116,10 +116,10 @@ DRAWS = {
     'd18oc': CalciteDraws(alpha=get_h5_resource(RESOURCE_STR.format('d18oc'), key='alpha'),
                           beta=get_h5_resource(RESOURCE_STR.format('d18oc'), key='beta'),
                           tau2=get_h5_resource(RESOURCE_STR.format('d18oc'), key='tau2'),
-                          spp_temprange=get_h5_resource(RESOURCE_STR.format('d18oc'),
-                                                        key='spp_temprange'),
-                          spp_d18oswrange=get_h5_resource(RESOURCE_STR.format('d18oc'),
-                                                          key='spp_d18oswrange')
+                          stats_temp=get_h5_resource(RESOURCE_STR.format('d18oc'),
+                                                     key='stats_temp'),
+                          stats_d18osw=get_h5_resource(RESOURCE_STR.format('d18oc'),
+                                                       key='stats_d18osw')
                           ),
     'd18osw': SeawaterDraws(alpha=get_h5_resource(RESOURCE_STR.format('d18osw'), key='alpha'),
                             beta=get_h5_resource(RESOURCE_STR.format('d18osw'), key='beta'),
@@ -132,5 +132,5 @@ def get_draws(drawtype):
     """Get modelparam Draws instance for draw type
     """
     drawtype = drawtype.lower()
-    assert drawtype in ['d18oc', 'd18osw']
+    assert drawtype in DRAWS.keys()
     return deepcopy(DRAWS[drawtype])
