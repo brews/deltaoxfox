@@ -27,7 +27,7 @@ setup(
     ],
     keywords='marine paleoclimate d18O',
 
-    packages=find_packages(exclude=['docs', 'geostats*']),
+    packages=find_packages(exclude=['docs']),
 
     install_requires=['numpy', 'pandas', 'tables', 'scipy', 'matplotlib', 'attrs', 'numba'],
     tests_require=['pytest'],
