@@ -22,6 +22,24 @@ def test_predict_seatemp():
     np.testing.assert_allclose(goal, output, atol=1)
 
 
+def test_predict_seatemp_salinity():
+    # TODO(brews): Redo with checked numbers.
+    np.random.seed(123)
+    goal = 18.912478814218602
+    salinity = np.array([34.5])
+    latlon = (-79.49700165, -18.699981690000016)
+    d18oc = np.array([-1.71990007])
+    prior_mean = np.array([20.0])
+    prior_std = np.array([10.0])  # seatemp std for prior
+    spp = 'ruberwhite'
+    victim = predict_seatemp(d18oc=d18oc, prior_mean=prior_mean,
+                             prior_std=prior_std, spp=spp, salinity=salinity,
+                             latlon=latlon)
+    output = victim.ensemble.mean()
+    # Note how loose this test is.
+    np.testing.assert_allclose(goal, output, atol=1e-1)
+
+
 def test_predict_d18oc_salinity():
     np.random.seed(123)
     goal = np.array([-1.71990007])
