@@ -25,7 +25,7 @@ def test_predict_seatemp():
 def test_predict_seatemp_salinity():
     # TODO(brews): Redo with checked numbers.
     np.random.seed(123)
-    goal = 18.912478814218602
+    goal = 20.300727430496337
     salinity = np.array([34.5])
     latlon = (-79.49700165, -18.699981690000016)
     d18oc = np.array([-1.71990007])
