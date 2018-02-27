@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='deltaoxfox',
-    version='0.0.1',
+    version='0.0.1a0',
     description='δ18Oc calibration using Bayesian regression',
     license='GPLv3',
 
