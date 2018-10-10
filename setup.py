@@ -1,9 +1,17 @@
 from setuptools import setup, find_packages
 
+
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
+
 setup(
     name='deltaoxfox',
     version='0.0.1a0',
     description='δ18Oc calibration using Bayesian regression',
+    long_description=readme(),
+    long_description_content_type="text/markdown",
     license='GPLv3',
 
     author='S. Brewster Malevich',
@@ -29,7 +37,8 @@ setup(
 
     packages=find_packages(exclude=['docs']),
 
-    install_requires=['numpy', 'pandas', 'tables', 'scipy', 'matplotlib', 'attrs', 'numba', 'bayfox'],
+    install_requires=['numpy', 'pandas', 'tables', 'scipy', 'matplotlib',
+                      'attrs', 'numba', 'bayfox'],
     tests_require=['pytest'],
     package_data={'deltaoxfox': ['modelparams/*.h5']}
 )
