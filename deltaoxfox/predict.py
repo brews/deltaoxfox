@@ -39,7 +39,19 @@ class Prediction:
 
 @jit
 def predict_d18osw(salinity, latlon):
-    """Predict d18O of seawater given seawater salinity
+    """Predict seawater δ18O given seawater salinity and location.
+
+    Parameters
+    ----------
+    salinity : array_like or scalar
+        Seawater salinity.
+    latlon : tuple[float]
+        (latitude, longitude) tuple for the prediction site.
+
+    Returns
+    -------
+    out : Prediction
+        Model prediction of site's seawater δ18O.
     """
     salinity = np.array(salinity)
 
@@ -58,7 +70,37 @@ def predict_d18osw(salinity, latlon):
 
 @jit
 def predict_d18oc(seatemp, spp=None, d18osw=None, salinity=None, latlon=None):
-    """Predict d18O of calcite given seawater temperature and seawater d18O
+    """Predict δ18O of foram calcite given seawater temp and seawater δ18O or salinity
+
+    Estimates seawater δ18O from ``salinity`` and ``latlon`` if ``d18osw`` not
+    given.
+
+    Parameters
+    ----------
+    seatemp : array_like or scalar
+        n-length array or scalar of sea-surface temperature (°C).
+    spp : str, optional
+        Foraminifera group name of ``d18oc`` sample. Can be 'G. ruber pink',
+        'G. ruber white', 'G. sacculifer', 'N. pachyderma sinistral',
+        'G. bulloides', 'N. incompta' or ``None``. If ``None``, pooled
+        calibration model is used.
+    d18osw : array_like or scalar or None, optional
+        n-length array or scalar of δ18O of seawater (‰; VSMOW). If not scalar,
+        must be the same length as ``d18oc``. If not given, must give values for
+        ``salinity`` and ``latlon``.
+    salinity : array_like or scalar or None, optional
+        n-length array or scalar of sea water salinity values. If not scalar,
+        must be the same length as ``d18oc``. Must either define ``d18osw`` or
+        ``salinity`` and ``latlon``.
+    latlon : tuple[float], optional
+        (latitude, longitude) for the prediction site. Must either define
+        ``d18osw`` or ``salinity`` and ``latlon``.
+
+    Returns
+    -------
+    out : Prediction
+        Model prediction giving estimated δ18O of planktic foraminiferal calcite
+        (‰; VPDB).
     """
     seatemp = np.array(seatemp)
     if d18osw is not None:
@@ -114,8 +156,42 @@ def predict_d18oc(seatemp, spp=None, d18osw=None, salinity=None, latlon=None):
 
 
 @jit
-def predict_seatemp(d18oc,  prior_mean, prior_std, spp=None, d18osw=None, salinity=None, latlon=None):
-    """Predict seawater temperature given d18O of calcite and seawater d18O
+def predict_seatemp(d18oc, prior_mean, prior_std, spp=None, d18osw=None, salinity=None, latlon=None):
+    """Predict seawater temp given δ18O of foram calcite and seawater δ18O or salinity
+
+    Estimates seawater δ18O from ``salinity`` and ``latlon`` if ``d18osw`` not
+    given.
+
+    Parameters
+    ----------
+    d18oc : array_like or scalar
+        n-length array or scalar of δ18O of planktic foraminiferal calcite
+        (‰; VPDB).
+    prior_mean : scalar
+        Prior mean of sea-surface temperature (°C).
+    prior_std : scalar
+        Prior standard deviation of sea-surface temperature (°C).
+    spp : str, optional
+        Foraminifera group name of ``d18oc`` sample. Can be 'G. ruber pink',
+        'G. ruber white', 'G. sacculifer', 'N. pachyderma sinistral',
+        'G. bulloides', 'N. incompta' or ``None``. If ``None``, pooled
+        calibration model is used.
+    d18osw : array_like or scalar or None, optional
+        n-length array or scalar of δ18O of seawater (‰; VSMOW). If not scalar,
+        must be the same length as ``d18oc``. If not given, must give values for
+        ``salinity`` and ``latlon``.
+    salinity : array_like or scalar or None, optional
+        n-length array or scalar of sea water salinity values. If not scalar,
+        must be the same length as ``d18oc``. Must either define ``d18osw`` or
+        ``salinity`` and ``latlon``.
+    latlon : tuple[float], optional
+        (latitude, longitude) for the prediction site. Must either define
+        ``d18osw`` or ``salinity`` and ``latlon``.
+
+    Returns
+    -------
+    out : Prediction
+        Model prediction giving estimated sea-surface temperature (°C).
     """
     d18oc = np.array(d18oc)
     prior_mean = np.array(prior_mean)
