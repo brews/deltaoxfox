@@ -1,20 +1,17 @@
 import pytest
 import numpy as np
-import pandas as pd
 from deltaoxfox.predict import (Prediction, predict_d18osw, predict_d18oc,
                                 predict_seatemp)
 
 
 def test_predict_seatemp():
-    # TODO(brews): Redo with checked numbers.
     np.random.seed(123)
-    d18oc = np.array([-1.71990007])  # Not sure this value is correct.
-    goal = np.array([20])
+    d18oc = np.array([-1.71990007])
+    goal = np.array([21.14])
     d18osw = np.array([-0.28134280382815624])
-    prior_mean = 30
-    prior_std = 20  # seatemp std for prior
-    # latlon = (-79.49700165, -18.699981690000016)
-    spp = 'ruberwhite'
+    prior_mean = 30.0
+    prior_std = 20.0
+    spp = 'G. ruber white'
     victim = predict_seatemp(d18oc=d18oc, prior_mean=prior_mean,
                              prior_std=prior_std, spp=spp, d18osw=d18osw)
     output = victim.ensemble.mean()
@@ -25,13 +22,13 @@ def test_predict_seatemp():
 def test_predict_seatemp_salinity():
     # TODO(brews): Redo with checked numbers.
     np.random.seed(123)
-    goal = 20.300727430496337
+    goal = np.array([21.02])
     salinity = np.array([34.5])
     latlon = (-79.49700165, -18.699981690000016)
     d18oc = np.array([-1.71990007])
     prior_mean = np.array([20.0])
     prior_std = np.array([10.0])  # seatemp std for prior
-    spp = 'ruberwhite'
+    spp = 'G. ruber white'
     victim = predict_seatemp(d18oc=d18oc, prior_mean=prior_mean,
                              prior_std=prior_std, spp=spp, salinity=salinity,
                              latlon=latlon)
@@ -42,11 +39,11 @@ def test_predict_seatemp_salinity():
 
 def test_predict_d18oc_salinity():
     np.random.seed(123)
-    goal = np.array([-1.71990007])
-    seatemp = np.array([20])
+    goal = np.array([-1.5283])
+    seatemp = np.array([20.0])
     salinity = np.array([34.5])
     latlon = (-79.49700165, -18.699981690000016)
-    spp = 'ruberwhite'
+    spp = 'G. ruber white'
     victim = predict_d18oc(seatemp=seatemp, spp=spp, salinity=salinity,
                            latlon=latlon)
     output = victim.ensemble.mean()
@@ -56,11 +53,11 @@ def test_predict_d18oc_salinity():
 
 def test_predict_d18oc_swisotope():
     np.random.seed(123)
-    goal = np.array([-1.71990007])  # Not sure this value is correct.
+    goal = np.array([-1.71990007])
     seatemp = np.array([20])
     d18osw = np.array([-0.28134280382815624])
     # latlon = (-79.49700165, -18.699981690000016)
-    spp = 'ruberwhite'
+    spp = 'G. ruber white'
     victim = predict_d18oc(seatemp=seatemp, spp=spp, d18osw=d18osw)
     output = victim.ensemble.mean()
     # Note how loose this test is.

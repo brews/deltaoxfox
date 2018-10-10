@@ -113,14 +113,6 @@ class SeawaterDraws(Draws):
 
 # Preloading these resources so only need to load them once.
 DRAWS = {
-    'd18oc': CalciteDraws(alpha=get_h5_resource(RESOURCE_STR.format('d18oc'), key='alpha'),
-                          beta=get_h5_resource(RESOURCE_STR.format('d18oc'), key='beta'),
-                          tau2=get_h5_resource(RESOURCE_STR.format('d18oc'), key='tau2'),
-                          stats_temp=get_h5_resource(RESOURCE_STR.format('d18oc'),
-                                                     key='stats_temp'),
-                          stats_d18osw=get_h5_resource(RESOURCE_STR.format('d18oc'),
-                                                       key='stats_d18osw')
-                          ),
     'd18osw': SeawaterDraws(alpha=get_h5_resource(RESOURCE_STR.format('d18osw'), key='alpha'),
                             beta=get_h5_resource(RESOURCE_STR.format('d18osw'), key='beta'),
                             tau2=get_h5_resource(RESOURCE_STR.format('d18osw'), key='tau2'),

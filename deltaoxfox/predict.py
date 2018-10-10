@@ -1,6 +1,7 @@
 import numpy as np
 from numba import jit
 import attr
+import bayfox as bfox
 from deltaoxfox.modelparams import get_draws
 
 
@@ -40,6 +41,8 @@ class Prediction:
 def predict_d18osw(salinity, latlon):
     """Predict d18O of seawater given seawater salinity
     """
+    salinity = np.array(salinity)
+
     modelparams = get_draws('d18osw')
     alpha, beta, tau2 = modelparams.find_abt2_near(latlon[0], latlon[1])
 
@@ -54,16 +57,27 @@ def predict_d18osw(salinity, latlon):
 
 
 @jit
-def predict_d18oc(seatemp, spp, d18osw=None, salinity=None, latlon=None):
+def predict_d18oc(seatemp, spp=None, d18osw=None, salinity=None, latlon=None):
     """Predict d18O of calcite given seawater temperature and seawater d18O
     """
-    d18oc_modelparams = get_draws('d18oc')
-    assert spp in list(d18oc_modelparams.alpha.columns)
-    assert (d18osw is not None) or ((salinity is not None) and (latlon is not None))
+    seatemp = np.array(seatemp)
+    if d18osw is not None:
+        d18osw = np.array(d18osw)
+    if salinity is not None:
+        salinity = np.array(salinity)
 
-    d18oc_tau2 = d18oc_modelparams.tau2.loc[:, spp].copy()
-    d18oc_beta = d18oc_modelparams.beta.loc[:, spp].copy()
-    d18oc_alpha = d18oc_modelparams.alpha.loc[:, spp].copy()
+    assert (d18osw is not None) or ((salinity is not None) and (latlon is not None)), "need 'd18osw' or 'salinity' and 'latlon'"
+
+    # Get our draws for d18oc prediction form bayfox.
+    # Hack to get around the difference in sample size between d18Oc (bayfox)
+    # and d18Osw MCMC parameter draw size.
+    n = 5000
+    d18oc_alpha, d18oc_beta, d18oc_tau = bfox.modelparams.get_draws(foram=spp, seasonal_seatemp=False)
+    d18oc_alpha = np.random.choice(d18oc_alpha, n)
+    d18oc_beta = np.random.choice(d18oc_beta, n)
+    d18oc_tau = np.random.choice(d18oc_tau, n)
+
+    # This is all clunky and could use a cleanup.
 
     d18osw_adj = None
     d18osw_alpha = None
@@ -75,17 +89,17 @@ def predict_d18oc(seatemp, spp, d18osw=None, salinity=None, latlon=None):
         d18osw_alpha, d18osw_beta, d18osw_tau2 = modelparams.find_abt2_near(latlon[0], latlon[1])
         # We're assuming that model parameter draws for d18osw & d18oc model are
         # the same (for speed)... May change this later with more coding.
-        assert d18oc_modelparams.tau2.shape[0] == d18osw_tau2.shape[0]
+        assert d18oc_tau.shape[0] == d18osw_tau2.shape[0]
     else:
         # Unit adjustment.
         d18osw_adj = d18osw - 0.27
 
-    y = np.empty((len(seatemp), len(d18oc_modelparams.tau2)))
+    y = np.empty((len(seatemp), len(d18oc_tau)))
     y[:] = np.nan
 
-    for i, tau2_now in enumerate(d18oc_tau2):
-        beta_now = d18oc_beta.iloc[i]
-        alpha_now = d18oc_alpha.iloc[i]
+    for i, tau_now in enumerate(d18oc_tau):
+        beta_now = d18oc_beta[i]
+        alpha_now = d18oc_alpha[i]
 
         if d18osw is None:
             beta_d18osw_now = d18osw_beta.iloc[i]
@@ -95,21 +109,32 @@ def predict_d18oc(seatemp, spp, d18osw=None, salinity=None, latlon=None):
                                           np.sqrt(tau2_d18osw_now))
             d18osw_adj = d18osw_now - 0.27
         mu = alpha_now + seatemp * beta_now + d18osw_adj
-        y[:, i] = np.random.normal(mu, np.sqrt(tau2_now))
+        y[:, i] = np.random.normal(mu, tau_now)
     return Prediction(ensemble=y)
 
 
 @jit
-def predict_seatemp(d18oc, spp, prior_mean, prior_std, d18osw=None, salinity=None, latlon=None):
+def predict_seatemp(d18oc,  prior_mean, prior_std, spp=None, d18osw=None, salinity=None, latlon=None):
     """Predict seawater temperature given d18O of calcite and seawater d18O
     """
-    d18oc_modelparams = get_draws('d18oc')
-    assert spp in list(d18oc_modelparams.alpha.columns)
-    assert (d18osw is not None) or ((salinity is not None) and (latlon is not None))
+    d18oc = np.array(d18oc)
+    prior_mean = np.array(prior_mean)
+    prior_std = np.array(prior_std)
+    if d18osw is not None:
+        d18osw = np.array(d18osw)
+    if salinity is not None:
+        salinity = np.array(salinity)
 
-    d18oc_tau2 = d18oc_modelparams.tau2.loc[:, spp].copy()
-    d18oc_beta = d18oc_modelparams.beta.loc[:, spp].copy()
-    d18oc_alpha = d18oc_modelparams.alpha.loc[:, spp].copy()
+    assert (d18osw is not None) or ((salinity is not None) and (latlon is not None)), "need 'd18osw' or 'salinity' and 'latlon'"
+
+    # Get our draws for d18oc prediction form bayfox.
+    # Hack to get around the difference in sample size between d18Oc (bayfox)
+    # and d18Osw MCMC parameter draw size.
+    n = 5000
+    d18oc_alpha, d18oc_beta, d18oc_tau = bfox.modelparams.get_draws(foram=spp, seasonal_seatemp=False)
+    d18oc_alpha = np.random.choice(d18oc_alpha, n)
+    d18oc_beta = np.random.choice(d18oc_beta, n)
+    d18oc_tau2 = np.random.choice(d18oc_tau, n) ** 2
 
     d18osw_adj = None
     d18osw_alpha = None
@@ -121,7 +146,7 @@ def predict_seatemp(d18oc, spp, prior_mean, prior_std, d18osw=None, salinity=Non
         d18osw_alpha, d18osw_beta, d18osw_tau2 = modelparams.find_abt2_near(latlon[0], latlon[1])
         # We're assuming that model parameter draws for d18osw & d18oc model are
         # the same (for speed)... May change this later with more coding.
-        assert d18oc_tau2.size == d18osw_tau2.size
+        assert d18oc_tau2.shape[0] == d18osw_tau2.shape[0]
     else:
         # Unit adjustment.
         d18osw_adj = d18osw - 0.27
@@ -130,12 +155,12 @@ def predict_seatemp(d18oc, spp, prior_mean, prior_std, d18osw=None, salinity=Non
     prior_par = {'mu': np.ones(nd) * prior_mean,
                  'inv_cov': np.eye(nd) * prior_std ** -2}
 
-    y = np.empty((len(d18oc), len(d18oc_modelparams.tau2)))
+    y = np.empty((len(d18oc), len(d18oc_tau2)))
     y[:] = np.nan
 
     for i, tau2_now in enumerate(d18oc_tau2):
-        beta_now = d18oc_beta.iloc[i]
-        alpha_now = d18oc_alpha.iloc[i]
+        beta_now = d18oc_beta[i]
+        alpha_now = d18oc_alpha[i]
 
         if d18osw is None:
             beta_d18osw_now = d18osw_beta.iloc[i]
@@ -187,7 +212,8 @@ def _target_timeseries_pred(d18osw_now, alpha_now, beta_now, tau2_now, proxy_ts,
     post_cov = np.linalg.solve(inv_post_cov, np.eye(n_ts))
     sqrt_post_cov = np.linalg.cholesky(post_cov).T
     # Get first factor for the mean
-    mean_first_factor = prior_pars['inv_cov'] @ prior_pars['mu'] + (1/tau2_now) * beta_now * (proxy_ts - alpha_now - d18osw_now)
+    mean_first_factor = (prior_pars['inv_cov'] @ prior_pars['mu'] + (1/tau2_now)
+                         * beta_now * (proxy_ts - alpha_now - d18osw_now))
     mean_full = post_cov @ mean_first_factor
 
     timeseries_pred = mean_full + sqrt_post_cov @ np.random.randn(n_ts).T

@@ -29,7 +29,7 @@ setup(
 
     packages=find_packages(exclude=['docs']),
 
-    install_requires=['numpy', 'pandas', 'tables', 'scipy', 'matplotlib', 'attrs', 'numba'],
+    install_requires=['numpy', 'pandas', 'tables', 'scipy', 'matplotlib', 'attrs', 'numba', 'bayfox'],
     tests_require=['pytest'],
     package_data={'deltaoxfox': ['modelparams/*.h5']}
 )

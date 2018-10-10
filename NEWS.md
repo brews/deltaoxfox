@@ -1,8 +1,8 @@
-# deltaoxfox v0.0.1a1
+# v0.0.1a1
 
-* 
+* Now use `bayfox` MCMC parameters for d18Oc and seatemp predictions.
 
 
-# deltaoxfox v0.0.1a0
+# v0.0.1a0
 
 * Initial release.
