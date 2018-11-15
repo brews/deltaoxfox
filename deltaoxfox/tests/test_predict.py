@@ -1,40 +1,6 @@
 import pytest
 import numpy as np
-from deltaoxfox.predict import (Prediction, predict_d18osw, predict_d18oc,
-                                predict_seatemp)
-
-
-def test_predict_seatemp():
-    np.random.seed(123)
-    d18oc = np.array([-1.71990007])
-    goal = np.array([21.14])
-    d18osw = np.array([-0.28134280382815624])
-    prior_mean = 30.0
-    prior_std = 20.0
-    spp = 'G. ruber white'
-    victim = predict_seatemp(d18oc=d18oc, prior_mean=prior_mean,
-                             prior_std=prior_std, spp=spp, d18osw=d18osw)
-    output = victim.ensemble.mean()
-    # Note how loose this test is.
-    np.testing.assert_allclose(goal, output, atol=1)
-
-
-def test_predict_seatemp_salinity():
-    # TODO(brews): Redo with checked numbers.
-    np.random.seed(123)
-    goal = np.array([21.02])
-    salinity = np.array([34.5])
-    latlon = (-79.49700165, -18.699981690000016)
-    d18oc = np.array([-1.71990007])
-    prior_mean = np.array([20.0])
-    prior_std = np.array([10.0])  # seatemp std for prior
-    spp = 'G. ruber white'
-    victim = predict_seatemp(d18oc=d18oc, prior_mean=prior_mean,
-                             prior_std=prior_std, spp=spp, salinity=salinity,
-                             latlon=latlon)
-    output = victim.ensemble.mean()
-    # Note how loose this test is.
-    np.testing.assert_allclose(goal, output, atol=1e-1)
+from deltaoxfox.predict import Prediction, predict_d18osw, predict_d18oc
 
 
 def test_predict_d18oc_salinity():
