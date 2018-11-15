@@ -2,6 +2,13 @@
 
 ## Enhancements
 
+* Update SST statistics for forams.
+
+* Compatibility for new and legacy species names. These name changes will be automatic within functions: 
+  'N. pachyderma sinistral' now becomes 'N. pachyderma'. All ruber sub species now become 
+  'G. ruber'. 'G. sacculifer' now automatically is switched to 'T. sacculifer'. This means that 
+  `bayfox` >v0.0.1a2 will need to be installed.
+  
 * Removed `predict_seatemp()` as should just use `bayfox` for this.
 
 ## Bug fixes

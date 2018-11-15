@@ -114,6 +114,14 @@ def predict_d18oc(seatemp, spp=None, d18osw=None, salinity=None, latlon=None):
     # Hack to get around the difference in sample size between d18Oc (bayfox)
     # and d18Osw MCMC parameter draw size.
     n = 5000
+
+    # For legacy DA, we need to normalize species names.
+    if str(spp) in ['T. sacculifer', 'G. sacculifer']:
+        spp = 'T. sacculifer'
+    elif str(spp) in ['G. ruber pink', 'G. ruber white', 'G. ruber']:
+        spp = 'G. ruber'
+    elif str(spp) in ['N. pachyderma sinistral', 'N. pachyderma']:
+        spp = 'N. pachyderma'
     d18oc_alpha, d18oc_beta, d18oc_tau = bfox.modelparams.get_draws(foram=spp, seasonal_seatemp=False)
     d18oc_alpha = np.random.choice(d18oc_alpha, n)
     d18oc_beta = np.random.choice(d18oc_beta, n)
