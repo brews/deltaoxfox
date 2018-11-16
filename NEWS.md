@@ -2,6 +2,14 @@
 
 ## Enhancements
 
+
+## Bug fixes
+
+
+# v0.0.1a2
+
+## Enhancements
+
 * Update SST statistics for forams.
 
 * Compatibility for new and legacy species names. These name changes will be automatic within functions: 
