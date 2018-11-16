@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='deltaoxfox',
-    version='0.0.1a1',
+    version='0.0.1a2',
     description='δ18Oc calibration using Bayesian regression',
     long_description=readme(),
     long_description_content_type="text/markdown",

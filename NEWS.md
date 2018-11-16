@@ -11,8 +11,6 @@
   
 * Removed `predict_seatemp()` as should just use `bayfox` for this.
 
-## Bug fixes
-
 
 # v0.0.1a1
 
