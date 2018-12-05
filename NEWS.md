@@ -2,9 +2,7 @@
 
 ## Enhancements
 
-
-## Bug fixes
-
+* `predict_d18oc` now has `seasonal_seatemp arg.
 
 # v0.0.1a2
 
