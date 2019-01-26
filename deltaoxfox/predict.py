@@ -69,7 +69,7 @@ def predict_d18osw(salinity, latlon):
 
 
 @jit
-def predict_d18oc(seatemp, spp=None, d18osw=None, salinity=None, latlon=None, sesonal_seatemp=False):
+def predict_d18oc(seatemp, spp=None, d18osw=None, salinity=None, latlon=None, seasonal_seatemp=False):
     """Predict δ18O of foram calcite given seawater temp and seawater δ18O or salinity
 
     Estimates seawater δ18O from ``salinity`` and ``latlon`` if ``d18osw`` not
@@ -126,7 +126,7 @@ def predict_d18oc(seatemp, spp=None, d18osw=None, salinity=None, latlon=None, se
         spp = 'G. ruber'
     elif str(spp) in ['N. pachyderma sinistral', 'N. pachyderma']:
         spp = 'N. pachyderma'
-    d18oc_alpha, d18oc_beta, d18oc_tau = bfox.modelparams.get_draws(foram=spp, seasonal_seatemp=sesonal_seatemp)
+    d18oc_alpha, d18oc_beta, d18oc_tau = bfox.modelparams.get_draws(foram=spp, seasonal_seatemp=seasonal_seatemp)
     d18oc_alpha = np.random.choice(d18oc_alpha, n)
     d18oc_beta = np.random.choice(d18oc_beta, n)
     d18oc_tau = np.random.choice(d18oc_tau, n)

@@ -1,8 +1,8 @@
 # v0.0.1a4
 
-## Enhancements
-
 ## Bug fixes
+
+* Fix bad keyword argument in `predict_d18oc()`.
 
 
 # v0.0.1a3
